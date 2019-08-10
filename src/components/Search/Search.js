@@ -3,18 +3,30 @@ import React, { Component } from 'react';
 import TextField from 'material-ui/TextField';
 import SelectField from 'material-ui/SelectField';
 import MenuItem from 'material-ui/MenuItem';
+import axios from 'axios';
+import ImageResults from '../Image-results/ImageResults';
 
 class Search extends Component {
     state = {
         searchText: '',
         amount: 15,
         apiUrl: 'https://pixabay.com/api',
-        apiKey: '',
+        apiKey: '13273665-0127e4ac4023d38ce4894a817',
         images: []
-    }
+    };
 
+    onTextChange = (e) => {
+        this.setState({[e.target.name]: e.target.value}, () => {
+            axios.get(`${this.state.apiUrl}/?key=${this.state.apiKey}&q=${this.state.searchText}&image_type=photo&per_page=${this.state.amount}&safesearch=true`)
+            .then(res => this.setState({images: res.data.hits}))
+            .catch(err => console.log(err));
+        });
+    };
+
+    onAmountChange = (e, index, value) => this.setState({ amount: value })
 
     render() {
+        console.log(this.state.images)
         return (
             <div>
                 <TextField 
@@ -26,16 +38,18 @@ class Search extends Component {
                 />
                 <br/>
                 <SelectField
-                    floatingLabelText='Frequency'
-                    value={this.state.value}
-                    onChange={this.handleChange}
+                    floatingLabelText='Amount'
+                    value={this.state.amount}
+                    onChange={this.onAmountChange}
                 >
-                    <MenuItem value={1} primaryText='Never' />
-                    <MenuItem value={2} primaryText='Every Night' />
-                    <MenuItem value={3} primaryText='Weeknights' />
-                    <MenuItem value={4} primaryText='Weekends' />
-                    <MenuItem value={5} primaryText='Weekly' />
+                    <MenuItem value={5} primaryText='5' />
+                    <MenuItem value={10} primaryText='10' />
+                    <MenuItem value={15} primaryText='15' />
+                    <MenuItem value={30} primaryText='30' />
+                    <MenuItem value={50} primaryText='50' />
                 </SelectField>
+                <br/>
+                {this.state.images.length > 0 ? <ImageResults images={this.state.images} /> : null }
             </div>
         )
     }
